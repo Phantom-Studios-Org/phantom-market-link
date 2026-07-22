@@ -7,8 +7,13 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.SharedConstants;
+//? if mc26 {
+/*import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
+*///?} else {
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
+//?}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +51,10 @@ public final class PhantomMarketLink implements ClientModInitializer {
     public void onInitializeClient() {
         instance = this;
         try {
-            //? if mc12111 {
+            // 26.x: getCurrentVersion(); 1.21.11: getGameVersion().name(); older: .getName()
+            //? if mc26 {
+            /*this.mcVersion = SharedConstants.getCurrentVersion().name();
+            *///?} elif mc12111 {
             /*this.mcVersion = SharedConstants.getGameVersion().name();
             *///?} else {
             this.mcVersion = SharedConstants.getGameVersion().getName();
@@ -151,7 +159,11 @@ public final class PhantomMarketLink implements ClientModInitializer {
         this.detail = newDetail;
         Runnable refresh = this.buttonRefresh;
         if (refresh != null) {
+            //? if mc26 {
+            /*Minecraft.getInstance().execute(refresh);
+            *///?} else {
             MinecraftClient.getInstance().execute(refresh);
+            //?}
         }
     }
 
@@ -173,6 +185,27 @@ public final class PhantomMarketLink implements ClientModInitializer {
 
     // ---- Helpers ----
 
+    //? if mc26 {
+    /*private static String currentWorldName(Minecraft client) {
+        if (client == null) {
+            return null;
+        }
+        if (client.isLocalServer() && client.getSingleplayerServer() != null) {
+            try {
+                return client.getSingleplayerServer().getWorldData().getLevelName();
+            } catch (Throwable ignored) {
+            }
+        }
+        ServerData info = client.getCurrentServer();
+        if (info != null) {
+            if (info.name != null && !info.name.isBlank()) {
+                return info.name;
+            }
+            return info.ip;
+        }
+        return null;
+    }
+    *///?} else {
     private static String currentWorldName(MinecraftClient client) {
         if (client == null) {
             return null;
@@ -191,5 +224,5 @@ public final class PhantomMarketLink implements ClientModInitializer {
             return info.address;
         }
         return null;
-    }
+    }//?}
 }

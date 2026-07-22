@@ -1,6 +1,12 @@
 plugins {
     id("dev.kikugie.stonecutter")
-    id("dev.architectury.loom") version "1.17.491"
+    // Two Loom variants, applied conditionally below: MC 26.x ships a
+    // deobfuscated jar and uses plain fabric-loom (no remap, no mappings);
+    // older versions use fabric-loom-remap, which provides the `mappings` +
+    // `modImplementation` configs to remap intermediary -> Yarn. This is the
+    // same split Carpet-TIS-Addition uses to span old versions through 26.x.
+    id("net.fabricmc.fabric-loom") version "1.17-SNAPSHOT" apply false
+    id("net.fabricmc.fabric-loom-remap") version "1.17-SNAPSHOT" apply false
     java
 }
 
@@ -9,12 +15,21 @@ plugins {
 // the team's other Stonecutter mods.
 val mcVersion = stonecutter.current.project.substringBeforeLast("-")
 
-// Numeric MC version for comparisons (e.g. 1.21.4 -> 12104).
+// Numeric MC version for comparisons (e.g. 1.21.4 -> 12104, 26.2 -> 260200).
 val mcParts = mcVersion.split(".").map { it.toIntOrNull() ?: 0 }
 val mcVersionNum = mcParts[0] * 10000 + mcParts.getOrElse(1) { 0 } * 100 + mcParts.getOrElse(2) { 0 }
 
-// Java toolchain: 1.20.1/1.20.4 run on 17, 1.20.5+ (all 1.21.x) on 21.
-val javaVersion = if (mcVersionNum >= 12005) 21 else 17
+// MC 26.0+ ships deobfuscated (Mojang names, no Yarn): plain fabric-loom, no
+// mappings, Java 25. Everything older: fabric-loom-remap + Yarn.
+val is26Plus = mcVersionNum >= 260000
+apply(plugin = if (is26Plus) "net.fabricmc.fabric-loom" else "net.fabricmc.fabric-loom-remap")
+
+// Java toolchain: 1.20.1/1.20.4 on 17, 1.20.5+ (all 1.21.x) on 21, 26.x on 25.
+val javaVersion = when {
+    mcVersionNum >= 260000 -> 25
+    mcVersionNum >= 12005  -> 21
+    else                   -> 17
+}
 
 val modId: String by project
 val modName: String by project
@@ -31,7 +46,7 @@ base {
 // Per-version dependency pins (see versions/<node>/gradle.properties).
 val fabricLoaderVersion: String by project
 val fabricApiVersion: String by project
-val yarnMappings: String by project
+val yarnMappings: String? by project // absent on 26.x (deobfuscated, no mappings)
 val litematicaVersion: String by project
 val malilibVersion: String by project
 
@@ -46,23 +61,27 @@ repositories {
     mavenCentral()
 }
 
-loom {
-    runConfigs.all {
-        ideConfigGenerated(true)
-        runDir = "../../run"
-    }
-}
-
+// Loom is applied in the body (apply(plugin=...)), not the plugins {} block, so
+// its Kotlin DSL accessors aren't generated — reference the configs by string
+// name. `implementation` is a standard java-plugin config (typed accessor is fine).
 dependencies {
-    minecraft("com.mojang:minecraft:$mcVersion")
-    // Litematica / MaLiLib are consumed with Yarn intermediary in dev (masa
-    // convention); Loom remaps the mod jars intermediary -> Yarn.
-    mappings("net.fabricmc:yarn:$yarnMappings:v2")
+    "minecraft"("com.mojang:minecraft:$mcVersion")
 
-    modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
-    modImplementation("maven.modrinth:litematica:$litematicaVersion")
-    modImplementation("maven.modrinth:malilib:$malilibVersion")
+    if (is26Plus) {
+        // Deobfuscated jar: no mappings, no remap → plain `implementation`.
+        implementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
+        implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+        implementation("maven.modrinth:litematica:$litematicaVersion")
+        implementation("maven.modrinth:malilib:$malilibVersion")
+    } else {
+        // Litematica / MaLiLib are consumed with Yarn intermediary in dev (masa
+        // convention); fabric-loom-remap remaps the mod jars intermediary -> Yarn.
+        "mappings"("net.fabricmc:yarn:$yarnMappings:v2")
+        "modImplementation"("net.fabricmc:fabric-loader:$fabricLoaderVersion")
+        "modImplementation"("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+        "modImplementation"("maven.modrinth:litematica:$litematicaVersion")
+        "modImplementation"("maven.modrinth:malilib:$malilibVersion")
+    }
 }
 
 java {
@@ -122,4 +141,8 @@ stonecutter {
     // createFromFile) and vanilla renamed GameVersion.getName()→name() and
     // Entity.getPos()→getEntityPos().
     const("mc12111", mcVersionNum >= 12111)  // 1.21.11+
+    // 26.x: deobfuscated jar → vanilla uses Mojang names (Minecraft, level,
+    // player.position(), BlockPos.containing, Util.getPlatform().openUri,
+    // getCurrentVersion, ServerData .name/.ip, getWorldData, getUser().getName).
+    const("mc26", is26Plus)
 }

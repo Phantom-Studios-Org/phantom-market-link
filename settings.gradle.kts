@@ -28,6 +28,8 @@ stonecutter {
             "1.21.1-fabric",
             "1.21.4-fabric",
             "1.21.11-fabric",
+            "26.1-fabric",
+            "26.2-fabric",
         )
     }
 }
