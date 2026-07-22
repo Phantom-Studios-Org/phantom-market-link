@@ -23,14 +23,17 @@ folder, and (when you're in a world) loaded as a placement automatically.
 
 Fabric only. Built with [Stonecutter](https://stonecutter.kikugie.dev/); active/pinned version is **1.21.1**.
 
-| Minecraft | Java | Litematica | MaLiLib          | Fabric API      | Yarn            |
-|-----------|------|------------|------------------|-----------------|-----------------|
-| 1.20.1    | 17   | 0.15.4     | 0.16.3           | 0.92.2+1.20.1   | 1.20.1+build.10 |
-| 1.20.4    | 17   | 0.17.4     | 0.18.4-alpha.1   | 0.97.0+1.20.4   | 1.20.4+build.3  |
-| 1.21.1    | 21   | 0.19.61    | 0.21.10          | 0.107.0+1.21.1  | 1.21.1+build.3  |
-| 1.21.4    | 21   | 0.21.7     | 0.23.5           | 0.119.4+1.21.4  | 1.21.4+build.8  |
+| Minecraft | Java | Litematica | MaLiLib          | Fabric API      | Yarn            | Loader  |
+|-----------|------|------------|------------------|-----------------|-----------------|---------|
+| 1.20.1    | 17   | 0.15.4     | 0.16.3           | 0.92.2+1.20.1   | 1.20.1+build.10 | 0.16.10 |
+| 1.20.4    | 17   | 0.17.4     | 0.18.4-alpha.1   | 0.97.0+1.20.4   | 1.20.4+build.3  | 0.16.10 |
+| 1.21.1    | 21   | 0.19.61    | 0.21.10          | 0.107.0+1.21.1  | 1.21.1+build.3  | 0.16.10 |
+| 1.21.4    | 21   | 0.21.7     | 0.23.5           | 0.119.4+1.21.4  | 1.21.4+build.8  | 0.16.10 |
+| 1.21.11   | 21   | 0.26.12    | 0.27.16          | 0.141.3+1.21.11 | 1.21.11+build.6 | 0.18.6  |
 
-Fabric Loader `0.16.10` for all versions. Litematica and MaLiLib are pulled from the
+The version pins in the table are what each jar is **built** against; the shipped
+`fabric.mod.json` requires `litematica`/`malilib` `>=` those versions and pins Minecraft to
+its exact patch. Litematica and MaLiLib are pulled from the
 [Modrinth Maven](https://docs.modrinth.com/docs/tutorials/maven/) and mapped with Yarn
 (the mapping masa mods are consumed with in dev).
 
@@ -68,17 +71,6 @@ On first launch the mod writes `config/phantom-market-link.json`:
 - `gatewayUrl` — WebSocket URL (`/link/connect` on the same marketplace worker).
 - `sessionToken` — your BetterAuth session token, written after you log in. **Keep it secret** (it is never logged).
 - `phantomUsername` — cached display name for the button.
-
-### Developing against the dev marketplace
-
-Point the mod at the dev environment before logging in:
-
-```json
-{
-  "baseUrl": "https://marketplace-dev.phantom-node.com",
-  "gatewayUrl": "wss://marketplace-dev.phantom-node.com/link/connect"
-}
-```
 
 ## License
 
