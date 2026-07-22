@@ -1,0 +1,18 @@
+{
+  "phantom_market_link.button.login": "Login with Phantom Market",
+  "phantom_market_link.button.logging_in": "Waiting for browser…",
+  "phantom_market_link.button.code": "Enter code: %s",
+  "phantom_market_link.button.connecting": "Connecting to Phantom Market…",
+  "phantom_market_link.button.connected": "Connected to %s",
+  "phantom_market_link.button.reconnecting": "Reconnecting…",
+  "phantom_market_link.confirm.logout.title": "Log out of Phantom Market?",
+  "phantom_market_link.confirm.logout.message": "You will stop receiving schematics until you log in again.",
+  "phantom_market_link.message.login_started": "Opening your browser… enter code %s to link this game.",
+  "phantom_market_link.message.login_success": "Linked to Phantom Market as %s",
+  "phantom_market_link.message.login_failed": "Phantom Market login failed: %s",
+  "phantom_market_link.message.logged_out": "Logged out of Phantom Market",
+  "phantom_market_link.message.session_expired": "Phantom Market session expired, please log in again",
+  "phantom_market_link.toast.received.title": "Phantom Market",
+  "phantom_market_link.toast.received": "Received %s",
+  "phantom_market_link.toast.received_load_failed": "Saved %s (could not auto-load placement)"
+}

@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.phantom.marketlink.mixin",
+  "compatibilityLevel": "JAVA_${java_version}",
+  "client": [
+    "MixinGuiMainMenu"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
