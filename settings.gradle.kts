@@ -28,10 +28,6 @@ stonecutter {
             "1.21.1-fabric",
             "1.21.4-fabric",
             "1.21.11-fabric",
-            // 26.1 / 26.2 scaffolded (gradle.properties + build.gradle is26Plus
-            // path + mc26 const) but NOT in the matrix: MC 26.x ships deobfuscated
-            // and Loom 1.17's layered-mappings factory NPEs on its identity
-            // mappings. Needs the correct 26.x mappings config resolved first.
         )
     }
 }

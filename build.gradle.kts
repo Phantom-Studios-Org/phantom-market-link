@@ -1,13 +1,5 @@
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-
 plugins {
     id("dev.kikugie.stonecutter")
-    // architectury-loom 1.17: consumes the newer Litematica/MaLiLib (built with
-    // Loom 1.16.3+). NOTE: 26.x is NOT yet buildable — Loom 1.17's layered-mappings
-    // factory NPEs on the deobfuscated 26.x jar's identity mappings (both
-    // architectury and plain fabric-loom flavors). See the 26.x scaffolding below
-    // (dormant until that mapping config is solved).
     id("dev.architectury.loom") version "1.17.491"
     java
 }
@@ -21,16 +13,8 @@ val mcVersion = stonecutter.current.project.substringBeforeLast("-")
 val mcParts = mcVersion.split(".").map { it.toIntOrNull() ?: 0 }
 val mcVersionNum = mcParts[0] * 10000 + mcParts.getOrElse(1) { 0 } * 100 + mcParts.getOrElse(2) { 0 }
 
-// MC 26.0+ ships a deobfuscated jar (Mojang dropped published mappings), so it
-// uses identity mappings + Java 25 instead of Yarn. See the hacks below.
-val is26Plus = mcVersionNum >= 260000
-
-// Java toolchain: 1.20.1/1.20.4 on 17, 1.20.5+ (all 1.21.x) on 21, 26.x on 25.
-val javaVersion = when {
-    mcVersionNum >= 260000 -> 25
-    mcVersionNum >= 12005  -> 21
-    else                   -> 17
-}
+// Java toolchain: 1.20.1/1.20.4 run on 17, 1.20.5+ (all 1.21.x) on 21.
+val javaVersion = if (mcVersionNum >= 12005) 21 else 17
 
 val modId: String by project
 val modName: String by project
@@ -47,7 +31,7 @@ base {
 // Per-version dependency pins (see versions/<node>/gradle.properties).
 val fabricLoaderVersion: String by project
 val fabricApiVersion: String by project
-val yarnMappings: String? by project // absent on 26.x (identity mappings)
+val yarnMappings: String by project
 val litematicaVersion: String by project
 val malilibVersion: String by project
 
@@ -62,38 +46,6 @@ repositories {
     mavenCentral()
 }
 
-// 26.x hack — Fabric publishes the intermediary POM with version 0.0.0, which
-// breaks Gradle metadata resolution. Generate a local identity intermediary with
-// the real version + v2 tiny format. (Fabric-only; render-mod does the same.)
-if (is26Plus) {
-    val localMaven = rootDir.resolve(".gradle/local-maven")
-    val intermediaryDir = localMaven.resolve("net/fabricmc/intermediary/$mcVersion")
-    val jarFile = intermediaryDir.resolve("intermediary-$mcVersion-v2.jar")
-    if (!jarFile.exists()) {
-        intermediaryDir.mkdirs()
-        intermediaryDir.resolve("intermediary-$mcVersion.pom").writeText("""
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <modelVersion>4.0.0</modelVersion>
-              <groupId>net.fabricmc</groupId>
-              <artifactId>intermediary</artifactId>
-              <version>$mcVersion</version>
-            </project>
-        """.trimIndent())
-        ZipOutputStream(jarFile.outputStream()).use { zip ->
-            zip.putNextEntry(ZipEntry("mappings/mappings.tiny"))
-            zip.write("tiny\t2\t0\tofficial\tintermediary\n".toByteArray())
-            zip.closeEntry()
-        }
-    }
-    repositories {
-        maven(localMaven) {
-            name = "LocalIntermediary"
-            content { includeModule("net.fabricmc", "intermediary") }
-        }
-    }
-}
-
 loom {
     runConfigs.all {
         ideConfigGenerated(true)
@@ -103,25 +55,14 @@ loom {
 
 dependencies {
     minecraft("com.mojang:minecraft:$mcVersion")
+    // Litematica / MaLiLib are consumed with Yarn intermediary in dev (masa
+    // convention); Loom remaps the mod jars intermediary -> Yarn.
+    mappings("net.fabricmc:yarn:$yarnMappings:v2")
 
     modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
-
-    @Suppress("UnstableApiUsage")
-    if (is26Plus) {
-        // Deobfuscated jar → identity mappings, and the remap pipeline is off
-        // (nothing to remap), so mod deps are plain `implementation`.
-        mappings(loom.layered { })
-        implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
-        implementation("maven.modrinth:litematica:$litematicaVersion")
-        implementation("maven.modrinth:malilib:$malilibVersion")
-    } else {
-        // Litematica / MaLiLib are consumed with Yarn intermediary in dev (masa
-        // convention); Loom remaps the mod jars intermediary -> Yarn.
-        mappings("net.fabricmc:yarn:$yarnMappings:v2")
-        modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
-        modImplementation("maven.modrinth:litematica:$litematicaVersion")
-        modImplementation("maven.modrinth:malilib:$malilibVersion")
-    }
+    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+    modImplementation("maven.modrinth:litematica:$litematicaVersion")
+    modImplementation("maven.modrinth:malilib:$malilibVersion")
 }
 
 java {
@@ -181,7 +122,4 @@ stonecutter {
     // createFromFile) and vanilla renamed GameVersion.getName()→name() and
     // Entity.getPos()→getEntityPos().
     const("mc12111", mcVersionNum >= 12111)  // 1.21.11+
-    // 26.x: deobfuscated jar → vanilla uses Mojang names (Minecraft, level,
-    // position(), BlockPos.containing, Util.getPlatform().openUri, etc.).
-    const("mc26", mcVersionNum >= 260000)
 }
