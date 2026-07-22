@@ -1,0 +1,106 @@
+name: Release
+
+# On a published GitHub Release (or manual dispatch against an existing tag):
+# build every version, then publish each jar to Modrinth + attach it to the
+# GitHub Release. One Modrinth version per Minecraft version.
+#
+# Required repo config before this works:
+#   - Variable  MODRINTH_ID     : the Modrinth project id/slug (Settings → Variables)
+#   - Secret    MODRINTH_TOKEN  : a Modrinth API token with write scope (Settings → Secrets)
+# CurseForge is optional — add CURSEFORGE_ID (var) + CF_TOKEN (secret) and the
+# curseforge-* lines to mc-publish below if you ever want it.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish to
+        required: true
+
+permissions:
+  contents: write   # mc-publish attaches the jars to the GitHub Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build all versions
+        run: |
+          chmod +x gradlew
+          ./gradlew chiseledBuild
+      - name: Collect jars
+        run: |
+          mkdir -p dist
+          find versions -path '*/build/libs/*.jar' \
+            ! -name '*-sources.jar' ! -name '*-dev.jar' -exec cp {} dist/ \;
+          ls -l dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jars
+          path: dist/*.jar
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false   # one version failing shouldn't block the others
+      matrix:
+        # node = Stonecutter subproject; mc = the Minecraft version(s) to tag on
+        # Modrinth. The jar file names end with "+<node>.jar".
+        include:
+          - { node: 1.20.1-fabric,  mc: "1.20.1" }
+          - { node: 1.20.4-fabric,  mc: "1.20.4" }
+          - { node: 1.21.1-fabric,  mc: "1.21.1" }
+          - { node: 1.21.4-fabric,  mc: "1.21.4" }
+          - { node: 1.21.11-fabric, mc: "1.21.11" }
+          - { node: 26.1-fabric,    mc: "26.1" }
+          - { node: 26.2-fabric,    mc: "26.2" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: jars
+          path: dist
+
+      - name: Locate this version's jar
+        id: jar
+        run: |
+          f=$(ls dist/*+${{ matrix.node }}.jar)
+          test -f "$f" || { echo "no jar for ${{ matrix.node }}"; exit 1; }
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Modrinth + GitHub Release
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          github-tag: ${{ inputs.tag || github.event.release.tag_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          files: ${{ steps.jar.outputs.path }}
+          name: PhantomMarket Link ${{ inputs.tag || github.event.release.tag_name }} (MC ${{ matrix.mc }})
+          version: ${{ inputs.tag || github.event.release.tag_name }}+mc${{ matrix.mc }}
+          version-type: release
+
+          loaders: fabric
+          game-versions: ${{ matrix.mc }}
+          # Declared explicitly so mc-publish doesn't guess from fabric.mod.json.
+          dependencies: |-
+            litematica(required)
+            malilib(required)
+            fabric-api(required)
+
+          retry-attempts: 3
+          retry-delay: 10000
