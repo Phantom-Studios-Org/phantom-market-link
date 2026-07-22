@@ -69,17 +69,6 @@ On first launch the mod writes `config/phantom-market-link.json`:
 - `sessionToken` — your BetterAuth session token, written after you log in. **Keep it secret** (it is never logged).
 - `phantomUsername` — cached display name for the button.
 
-### Developing against the dev marketplace
-
-Point the mod at the dev environment before logging in:
-
-```json
-{
-  "baseUrl": "https://marketplace-dev.phantom-node.com",
-  "gatewayUrl": "wss://marketplace-dev.phantom-node.com/link/connect"
-}
-```
-
 ## License
 
 All Rights Reserved.
