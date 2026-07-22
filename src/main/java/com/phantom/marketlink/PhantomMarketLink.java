@@ -8,12 +8,12 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.SharedConstants;
 //? if mc26 {
-/*import net.minecraft.client.Minecraft;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
-*///?} else {
-import net.minecraft.client.MinecraftClient;
+//?} else {
+/*import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
-//?}
+*///?}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +53,12 @@ public final class PhantomMarketLink implements ClientModInitializer {
         try {
             // 26.x: getCurrentVersion(); 1.21.11: getGameVersion().name(); older: .getName()
             //? if mc26 {
-            /*this.mcVersion = SharedConstants.getCurrentVersion().name();
-            *///?} elif mc12111 {
+            this.mcVersion = SharedConstants.getCurrentVersion().name();
+            //?} elif mc12111 {
             /*this.mcVersion = SharedConstants.getGameVersion().name();
             *///?} else {
-            this.mcVersion = SharedConstants.getGameVersion().getName();
-            //?}
+            /*this.mcVersion = SharedConstants.getGameVersion().getName();
+            *///?}
         } catch (Throwable t) {
             LOGGER.warn("Could not resolve MC version name", t);
         }
@@ -160,10 +160,10 @@ public final class PhantomMarketLink implements ClientModInitializer {
         Runnable refresh = this.buttonRefresh;
         if (refresh != null) {
             //? if mc26 {
-            /*Minecraft.getInstance().execute(refresh);
-            *///?} else {
-            MinecraftClient.getInstance().execute(refresh);
-            //?}
+            Minecraft.getInstance().execute(refresh);
+            //?} else {
+            /*MinecraftClient.getInstance().execute(refresh);
+            *///?}
         }
     }
 
@@ -186,7 +186,7 @@ public final class PhantomMarketLink implements ClientModInitializer {
     // ---- Helpers ----
 
     //? if mc26 {
-    /*private static String currentWorldName(Minecraft client) {
+    private static String currentWorldName(Minecraft client) {
         if (client == null) {
             return null;
         }
@@ -205,8 +205,8 @@ public final class PhantomMarketLink implements ClientModInitializer {
         }
         return null;
     }
-    *///?} else {
-    private static String currentWorldName(MinecraftClient client) {
+    //?} else {
+    /*private static String currentWorldName(MinecraftClient client) {
         if (client == null) {
             return null;
         }
@@ -224,5 +224,5 @@ public final class PhantomMarketLink implements ClientModInitializer {
             return info.address;
         }
         return null;
-    }//?}
+    }*///?}
 }

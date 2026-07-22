@@ -191,10 +191,10 @@ public final class DeviceAuthManager {
                 return;
             }
             //? if mc26 {
-            /*Util.getPlatform().openUri(uri);
-            *///?} else {
-            Util.getOperatingSystem().open(uri);
-            //?}
+            Util.getPlatform().openUri(uri);
+            //?} else {
+            /*Util.getOperatingSystem().open(uri);
+            *///?}
         } catch (Throwable t) {
             PhantomMarketLink.LOGGER.warn("Could not open browser; visit the URL manually", t);
         }

@@ -4,10 +4,10 @@ import com.phantom.marketlink.PhantomMarketLink;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
 //? if mc26 {
-/*import net.minecraft.client.Minecraft;
-*///?} else {
-import net.minecraft.client.MinecraftClient;
-//?}
+import net.minecraft.client.Minecraft;
+//?} else {
+/*import net.minecraft.client.MinecraftClient;
+*///?}
 
 // MaLiLib message wrapper; marshals onto the client thread (store is read on the render thread).
 public final class LinkMessages {
@@ -25,10 +25,10 @@ public final class LinkMessages {
 
     private static void show(MessageType type, String translationKey, Object... args) {
         //? if mc26 {
-        /*Minecraft mc = Minecraft.getInstance();
-        *///?} else {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        //?}
+        Minecraft mc = Minecraft.getInstance();
+        //?} else {
+        /*MinecraftClient mc = MinecraftClient.getInstance();
+        *///?}
         if (mc == null) {
             return;
         }

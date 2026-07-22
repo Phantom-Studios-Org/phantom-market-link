@@ -5,10 +5,10 @@ import com.google.gson.JsonObject;
 import com.phantom.marketlink.PhantomMarketLink;
 import com.phantom.marketlink.config.LinkConfig;
 //? if mc26 {
-/*import net.minecraft.client.Minecraft;
-*///?} else {
-import net.minecraft.client.MinecraftClient;
-//?}
+import net.minecraft.client.Minecraft;
+//?} else {
+/*import net.minecraft.client.MinecraftClient;
+*///?}
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -187,10 +187,10 @@ public final class LinkClient {
         String mcUsername = "player";
         try {
             //? if mc26 {
-            /*mcUsername = Minecraft.getInstance().getUser().getName();
-            *///?} else {
-            mcUsername = MinecraftClient.getInstance().getSession().getUsername();
-            //?}
+            mcUsername = Minecraft.getInstance().getUser().getName();
+            //?} else {
+            /*mcUsername = MinecraftClient.getInstance().getSession().getUsername();
+            *///?}
         } catch (Throwable ignored) {
         }
         return config.gatewayUrl()
