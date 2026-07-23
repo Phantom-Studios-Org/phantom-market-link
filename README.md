@@ -21,7 +21,7 @@ folder, and (when you're in a world) loaded as a placement automatically.
 
 ## Supported versions
 
-Fabric only. Built with [Stonecutter](https://stonecutter.kikugie.dev/); active/pinned version is **1.21.1**.
+Fabric only. Built with [Stonecutter](https://stonecutter.kikugie.dev/); active/pinned version is **26.2**.
 
 | Minecraft | Java | Litematica | MaLiLib          | Fabric API      | Yarn            | Loader  |
 |-----------|------|------------|------------------|-----------------|-----------------|---------|
@@ -82,4 +82,4 @@ On first launch the mod writes `config/phantom-market-link.json`:
 
 ## License
 
-All Rights Reserved.
+[MIT](LICENSE)
