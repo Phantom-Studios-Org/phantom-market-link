@@ -9,6 +9,7 @@
     "homepage": "https://market.phantom-node.com"
   },
   "license": "${mod_license}",
+  "icon": "assets/phantom-market-link/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": ["com.phantom.marketlink.PhantomMarketLink"]
