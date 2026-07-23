@@ -116,10 +116,12 @@ jobs:
           loaders: fabric
           game-versions: ${{ matrix.mc }}
           # Declared explicitly so mc-publish doesn't guess from fabric.mod.json.
+          # Modrinth requires base62 project IDs here (slugs with '-' are rejected):
+          #   bEpr0Arc = litematica, GcWjdA9I = malilib, P7dR8mSH = fabric-api
           dependencies: |-
-            litematica(required)
-            malilib(required)
-            fabric-api(required)
+            bEpr0Arc(required)
+            GcWjdA9I(required)
+            P7dR8mSH(required)
 
           retry-attempts: 3
           retry-delay: 10000
