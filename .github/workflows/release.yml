@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to publish to
+        description: Release tag (e.g. v0.1.0) — created by the workflow if it does not exist
         required: true
 
 permissions:
@@ -48,8 +48,27 @@ jobs:
           path: dist/*.jar
           if-no-files-found: error
 
-  publish:
+  # On manual dispatch, create the tag + GitHub Release with GITHUB_TOKEN so the
+  # release is authored by github-actions[bot] rather than a personal account.
+  # On the `release: published` trigger the release already exists and this is a no-op.
+  release:
     needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure the GitHub Release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --target "$GITHUB_SHA" \
+              --title "$TAG" --notes "PhantomMarket Link $TAG"
+
+  publish:
+    needs: [build, release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
