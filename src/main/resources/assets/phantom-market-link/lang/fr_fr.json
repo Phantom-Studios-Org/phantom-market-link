@@ -1,0 +1,18 @@
+{
+  "phantom_market_link.button.login": "Se connecter avec Phantom Market",
+  "phantom_market_link.button.logging_in": "En attente du navigateur…",
+  "phantom_market_link.button.code": "Saisis le code : %s",
+  "phantom_market_link.button.connecting": "Connexion à Phantom Market…",
+  "phantom_market_link.button.connected": "Connecté en tant que %s",
+  "phantom_market_link.button.reconnecting": "Reconnexion…",
+  "phantom_market_link.confirm.logout.title": "Se déconnecter de Phantom Market ?",
+  "phantom_market_link.confirm.logout.message": "Tu ne recevras plus de schematics tant que tu ne te reconnectes pas.",
+  "phantom_market_link.message.login_started": "Ouverture du navigateur… saisis le code %s pour lier cette partie.",
+  "phantom_market_link.message.login_success": "Lié à Phantom Market en tant que %s",
+  "phantom_market_link.message.login_failed": "Échec de la connexion à Phantom Market : %s",
+  "phantom_market_link.message.logged_out": "Déconnecté de Phantom Market",
+  "phantom_market_link.message.session_expired": "Session Phantom Market expirée, reconnecte-toi",
+  "phantom_market_link.toast.received.title": "Phantom Market",
+  "phantom_market_link.toast.received": "%s reçu",
+  "phantom_market_link.toast.received_load_failed": "%s enregistré (impossible de charger le placement automatiquement)"
+}

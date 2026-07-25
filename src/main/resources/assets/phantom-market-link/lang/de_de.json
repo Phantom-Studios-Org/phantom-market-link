@@ -1,0 +1,18 @@
+{
+  "phantom_market_link.button.login": "Mit Phantom Market anmelden",
+  "phantom_market_link.button.logging_in": "Warte auf Browser…",
+  "phantom_market_link.button.code": "Code eingeben: %s",
+  "phantom_market_link.button.connecting": "Verbinde mit Phantom Market…",
+  "phantom_market_link.button.connected": "Verbunden als %s",
+  "phantom_market_link.button.reconnecting": "Neu verbinden…",
+  "phantom_market_link.confirm.logout.title": "Von Phantom Market abmelden?",
+  "phantom_market_link.confirm.logout.message": "Du erhältst keine Schematics mehr, bis du dich erneut anmeldest.",
+  "phantom_market_link.message.login_started": "Browser wird geöffnet… gib den Code %s ein, um dieses Spiel zu verknüpfen.",
+  "phantom_market_link.message.login_success": "Mit Phantom Market als %s verknüpft",
+  "phantom_market_link.message.login_failed": "Anmeldung bei Phantom Market fehlgeschlagen: %s",
+  "phantom_market_link.message.logged_out": "Von Phantom Market abgemeldet",
+  "phantom_market_link.message.session_expired": "Phantom-Market-Sitzung abgelaufen, bitte erneut anmelden",
+  "phantom_market_link.toast.received.title": "Phantom Market",
+  "phantom_market_link.toast.received": "%s empfangen",
+  "phantom_market_link.toast.received_load_failed": "%s gespeichert (Platzierung konnte nicht automatisch geladen werden)"
+}
