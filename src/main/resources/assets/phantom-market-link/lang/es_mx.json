@@ -1,0 +1,18 @@
+{
+  "phantom_market_link.button.login": "Iniciar sesión con Phantom Market",
+  "phantom_market_link.button.logging_in": "Esperando al navegador…",
+  "phantom_market_link.button.code": "Introduce el código: %s",
+  "phantom_market_link.button.connecting": "Conectando con Phantom Market…",
+  "phantom_market_link.button.connected": "Conectado como %s",
+  "phantom_market_link.button.reconnecting": "Reconectando…",
+  "phantom_market_link.confirm.logout.title": "¿Cerrar sesión en Phantom Market?",
+  "phantom_market_link.confirm.logout.message": "Dejarás de recibir esquemas hasta que vuelvas a iniciar sesión.",
+  "phantom_market_link.message.login_started": "Abriendo el navegador… introduce el código %s para vincular esta partida.",
+  "phantom_market_link.message.login_success": "Vinculado a Phantom Market como %s",
+  "phantom_market_link.message.login_failed": "Error al iniciar sesión en Phantom Market: %s",
+  "phantom_market_link.message.logged_out": "Sesión de Phantom Market cerrada",
+  "phantom_market_link.message.session_expired": "La sesión de Phantom Market ha caducado, vuelve a iniciar sesión",
+  "phantom_market_link.toast.received.title": "Phantom Market",
+  "phantom_market_link.toast.received": "Recibido %s",
+  "phantom_market_link.toast.received_load_failed": "Guardado %s (no se pudo cargar la colocación automáticamente)"
+}

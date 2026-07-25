@@ -1,0 +1,18 @@
+{
+  "phantom_market_link.button.login": "Entrar com Phantom Market",
+  "phantom_market_link.button.logging_in": "Aguardando o navegador…",
+  "phantom_market_link.button.code": "Digite o código: %s",
+  "phantom_market_link.button.connecting": "Conectando ao Phantom Market…",
+  "phantom_market_link.button.connected": "Conectado como %s",
+  "phantom_market_link.button.reconnecting": "Reconectando…",
+  "phantom_market_link.confirm.logout.title": "Sair do Phantom Market?",
+  "phantom_market_link.confirm.logout.message": "Você deixará de receber schematics até entrar novamente.",
+  "phantom_market_link.message.login_started": "Abrindo o navegador… digite o código %s para vincular este jogo.",
+  "phantom_market_link.message.login_success": "Vinculado ao Phantom Market como %s",
+  "phantom_market_link.message.login_failed": "Falha ao entrar no Phantom Market: %s",
+  "phantom_market_link.message.logged_out": "Você saiu do Phantom Market",
+  "phantom_market_link.message.session_expired": "Sessão do Phantom Market expirada, entre novamente",
+  "phantom_market_link.toast.received.title": "Phantom Market",
+  "phantom_market_link.toast.received": "%s recebido",
+  "phantom_market_link.toast.received_load_failed": "%s salvo (não foi possível carregar o posicionamento automaticamente)"
+}
