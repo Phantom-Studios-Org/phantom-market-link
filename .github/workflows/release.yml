@@ -1,14 +1,16 @@
 name: Release
 
 # On a published GitHub Release (or manual dispatch against an existing tag):
-# build every version, then publish each jar to Modrinth + attach it to the
-# GitHub Release. One Modrinth version per Minecraft version.
+# build every version, then publish each jar to Modrinth + CurseForge and attach
+# it to the GitHub Release. One store version per Minecraft version.
 #
 # Required repo config before this works:
 #   - Variable  MODRINTH_ID     : the Modrinth project id/slug (Settings → Variables)
 #   - Secret    MODRINTH_TOKEN  : a Modrinth API token with write scope (Settings → Secrets)
-# CurseForge is optional — add CURSEFORGE_ID (var) + CF_TOKEN (secret) and the
-# curseforge-* lines to mc-publish below if you ever want it.
+#   - Secret    CF_API_TOKEN    : a CurseForge API token (account-wide, from
+#                                 authors.curseforge.com → API Tokens)
+# A store whose id/token pair is still empty is skipped, so releases keep landing
+# on GitHub (and on the store that IS approved) while the other one is pending.
 
 on:
   release:
@@ -76,15 +78,17 @@ jobs:
       fail-fast: false   # one version failing shouldn't block the others
       matrix:
         # node = Stonecutter subproject; mc = the Minecraft version(s) to tag on
-        # Modrinth. The jar file names end with "+<node>.jar".
+        # the stores; java = the toolchain that node compiles with (see the
+        # `javaVersion` switch in build.gradle.kts). The jar file names end with
+        # "+<node>.jar".
         include:
-          - { node: 1.20.1-fabric,  mc: "1.20.1" }
-          - { node: 1.20.4-fabric,  mc: "1.20.4" }
-          - { node: 1.21.1-fabric,  mc: "1.21.1" }
-          - { node: 1.21.4-fabric,  mc: "1.21.4" }
-          - { node: 1.21.11-fabric, mc: "1.21.11" }
-          - { node: 26.1-fabric,    mc: "26.1" }
-          - { node: 26.2-fabric,    mc: "26.2" }
+          - { node: 1.20.1-fabric,  mc: "1.20.1",  java: 17 }
+          - { node: 1.20.4-fabric,  mc: "1.20.4",  java: 17 }
+          - { node: 1.21.1-fabric,  mc: "1.21.1",  java: 21 }
+          - { node: 1.21.4-fabric,  mc: "1.21.4",  java: 21 }
+          - { node: 1.21.11-fabric, mc: "1.21.11", java: 21 }
+          - { node: 26.1-fabric,    mc: "26.1",    java: 25 }
+          - { node: 26.2-fabric,    mc: "26.2",    java: 25 }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -99,11 +103,18 @@ jobs:
           test -f "$f" || { echo "no jar for ${{ matrix.node }}"; exit 1; }
           echo "path=$f" >> "$GITHUB_OUTPUT"
 
-      - name: Publish to Modrinth + GitHub Release
-        uses: Kir-Antipov/mc-publish@v3.3
+      # Upstream renamed the account (Kir-Antipov -> Kira-NT); the old path only
+      # still resolves through a GitHub redirect, so reference it by its real
+      # name and pin the exact release rather than the moving v3.3 tag.
+      - name: Publish to Modrinth + CurseForge + GitHub Release
+        uses: Kira-NT/mc-publish@v3.3.1
         with:
           modrinth-id: ${{ vars.MODRINTH_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          # https://www.curseforge.com/minecraft/mc-mods/phantommarket-link
+          curseforge-id: 1702444
+          curseforge-token: ${{ secrets.CF_API_TOKEN }}
 
           github-tag: ${{ inputs.tag || github.event.release.tag_name }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -115,13 +126,17 @@ jobs:
 
           loaders: fabric
           game-versions: ${{ matrix.mc }}
+          # Don't let an unknown game version silently widen into a wrong one.
+          game-version-filter: any
+          java: ${{ matrix.java }}
           # Declared explicitly so mc-publish doesn't guess from fabric.mod.json.
-          # Modrinth requires base62 project IDs here (slugs with '-' are rejected):
-          #   bEpr0Arc = litematica, GcWjdA9I = malilib, P7dR8mSH = fabric-api
+          # Each store wants its own project identifier, so qualify them: Modrinth
+          # takes base62 IDs (slugs containing '-' are rejected), CurseForge takes
+          # its numeric project id. The leading name is only a label.
           dependencies: |-
-            bEpr0Arc(required)
-            GcWjdA9I(required)
-            P7dR8mSH(required)
+            litematica(required){modrinth:bEpr0Arc}{curseforge:308892}
+            malilib(required){modrinth:GcWjdA9I}{curseforge:303119}
+            fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}
 
           retry-attempts: 3
           retry-delay: 10000
