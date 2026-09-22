@@ -145,4 +145,7 @@ stonecutter {
     // player.position(), BlockPos.containing, Util.getPlatform().openUri,
     // getCurrentVersion, ServerData .name/.ip, getWorldData, getUser().getName).
     const("mc26", is26Plus)
+    // 26.3+: vanilla dropped Util.OS.openUri/openFile/openPath; opening a URI
+    // now goes through com.mojang.blaze3d.Blaze3D.openUri (see ConfirmLinkScreen).
+    const("mc263", mcVersionNum >= 260300)
 }

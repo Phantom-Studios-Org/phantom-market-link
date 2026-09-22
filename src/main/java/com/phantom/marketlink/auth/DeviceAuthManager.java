@@ -2,6 +2,9 @@ package com.phantom.marketlink.auth;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+//? if mc263 {
+/*import com.mojang.blaze3d.Blaze3D;
+*///?}
 import com.phantom.marketlink.PhantomMarketLink;
 import com.phantom.marketlink.config.LinkConfig;
 import com.phantom.marketlink.gui.LinkMessages;
@@ -190,7 +193,10 @@ public final class DeviceAuthManager {
                 PhantomMarketLink.LOGGER.warn("Refusing to open unexpected verification URL: {}", url);
                 return;
             }
-            //? if mc26 {
+            // 26.3 dropped Util.OS.openUri; vanilla's own ConfirmLinkScreen now calls Blaze3D.
+            //? if mc263 {
+            /*Blaze3D.openUri(uri);
+            *///?} elif mc26 {
             Util.getPlatform().openUri(uri);
             //?} else {
             /*Util.getOperatingSystem().open(uri);

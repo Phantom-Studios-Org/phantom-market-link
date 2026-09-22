@@ -89,6 +89,7 @@ jobs:
           - { node: 1.21.11-fabric, mc: "1.21.11", java: 21 }
           - { node: 26.1-fabric,    mc: "26.1",    java: 25 }
           - { node: 26.2-fabric,    mc: "26.2",    java: 25 }
+          - { node: 26.3-fabric,    mc: "26.3",    java: 25 }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4

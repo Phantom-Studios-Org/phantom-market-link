@@ -32,6 +32,7 @@ Fabric only. Built with [Stonecutter](https://stonecutter.kikugie.dev/); active/
 | 1.21.11   | 21   | 0.26.12    | 0.27.16          | 0.141.3+1.21.11 | 1.21.11+build.6 | 0.18.6  |
 | 26.1      | 25   | 0.27.10    | 0.28.9           | 0.145.1+26.1    | — (deobf)       | 0.19.2  |
 | 26.2      | 25   | 0.28.4     | 0.29.3           | 0.154.2+26.2    | — (deobf)       | 0.19.2  |
+| 26.3      | 25   | 0.29.0     | 0.30.1           | 0.161.0+26.3    | — (deobf)       | 0.19.5  |
 
 The version pins in the table are what each jar is **built** against; the shipped
 `fabric.mod.json` requires `litematica`/`malilib` `>=` those versions and pins Minecraft to
