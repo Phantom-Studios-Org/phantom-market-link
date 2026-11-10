@@ -13,6 +13,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
@@ -20,9 +21,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-// Downloads a schematic and saves it to Litematica's schematics dir, then tries to
-// load it as a placement. Slug/hash are re-validated here and the filename comes from
-// the slug only — a response header can contribute at most a whitelisted extension.
+// Downloads a schematic to the litematica schematics folder and loads it as a placement.
 public final class SchematicReceiver {
 
     private static final Pattern SLUG = Pattern.compile("^[a-z0-9-]{1,100}$");
@@ -80,23 +79,28 @@ public final class SchematicReceiver {
                 return Result.failed("no_schematics_dir");
             }
             Files.createDirectories(dir.toPath());
+            Path base = dir.toPath().toRealPath();
 
-            File target = resolveTarget(dir, slug, ext);
-            Path tmp = Files.createTempFile(dir.toPath(), slug + "-", ".part");
+            Path target = resolveTarget(base, slug, ext);
+            if (target == null) {
+                drain(resp.body());
+                return Result.failed("unsafe_path");
+            }
+            Path tmp = Files.createTempFile(base, "phantom-link-", ".part");
             try (InputStream in = resp.body()) {
                 copyCapped(in, tmp);
             } catch (TooLargeException e) {
                 Files.deleteIfExists(tmp);
                 return Result.failed("too_large");
             }
-            Files.move(tmp, target.toPath(), StandardCopyOption.ATOMIC_MOVE);
+            Files.move(tmp, target, StandardCopyOption.ATOMIC_MOVE);
 
-            PhantomMarketLink.LOGGER.info("Received schematic '{}' -> {}", slug, target.getName());
+            PhantomMarketLink.LOGGER.info("Received schematic '{}' -> {}", slug, target.getFileName());
 
-            // A failed auto-load must not fail the ack — the file saved fine.
+            // file is saved, a failed load still counts as delivered
             LitematicaBridge.LoadResult load = LitematicaBridge.LoadResult.SKIPPED;
             if ("litematic".equals(ext)) {
-                load = LitematicaBridge.tryLoadPlacement(target);
+                load = LitematicaBridge.tryLoadPlacement(target.toFile());
             }
             if (load == LitematicaBridge.LoadResult.FAILED) {
                 LinkMessages.info("phantom_market_link.toast.received_load_failed", slug);
@@ -140,21 +144,21 @@ public final class SchematicReceiver {
         return DEFAULT_EXT;
     }
 
-    private File resolveTarget(File dir, String slug, String ext) {
-        File candidate = new File(dir, slug + "." + ext);
-        if (!candidate.exists()) {
-            return candidate;
-        }
-        for (int i = 2; i < MAX_COLLISION_SUFFIX; i++) {
-            File c = new File(dir, slug + "-" + i + "." + ext);
-            if (!c.exists()) {
-                return c;
+    // slug.ext, slug-2.ext, ... has to stay inside the schematics folder
+    private static Path resolveTarget(Path base, String slug, String ext) {
+        for (int i = 1; i <= MAX_COLLISION_SUFFIX; i++) {
+            String name = (i == 1 ? slug : slug + "-" + i) + "." + ext;
+            Path candidate = base.resolve(name).normalize();
+            if (!base.equals(candidate.getParent())) {
+                return null;
+            }
+            if (!Files.exists(candidate, LinkOption.NOFOLLOW_LINKS)) {
+                return candidate;
             }
         }
-        return new File(dir, slug + "-" + MAX_COLLISION_SUFFIX + "." + ext);
+        return null;
     }
 
-    // Stream to disk, aborting past MAX_DOWNLOAD_BYTES so a runaway response can't fill it.
     private static void copyCapped(InputStream in, Path tmp) throws IOException, TooLargeException {
         byte[] buf = new byte[64 * 1024];
         long total = 0;
