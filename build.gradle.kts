@@ -31,10 +31,12 @@ val javaVersion = when {
     else                   -> 17
 }
 
-val modId: String by project
-val modName: String by project
-val modVersion: String by project
-val modGroup: String by project
+fun prop(name: String) = property(name) as String
+
+val modId = prop("modId")
+val modName = prop("modName")
+val modVersion = prop("modVersion")
+val modGroup = prop("modGroup")
 
 group = modGroup
 version = "$modVersion+$mcVersion-fabric"
@@ -44,11 +46,11 @@ base {
 }
 
 // Per-version dependency pins (see versions/<node>/gradle.properties).
-val fabricLoaderVersion: String by project
-val fabricApiVersion: String by project
-val yarnMappings: String? by project // absent on 26.x (deobfuscated, no mappings)
-val litematicaVersion: String by project
-val malilibVersion: String by project
+val fabricLoaderVersion = prop("fabricLoaderVersion")
+val fabricApiVersion = prop("fabricApiVersion")
+val yarnMappings = findProperty("yarnMappings") as String? // absent on 26.x (deobfuscated, no mappings)
+val litematicaVersion = prop("litematicaVersion")
+val malilibVersion = prop("malilibVersion")
 
 repositories {
     maven("https://maven.fabricmc.net/")
